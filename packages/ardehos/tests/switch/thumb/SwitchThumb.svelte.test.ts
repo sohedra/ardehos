@@ -6,6 +6,7 @@ import SwitchThumb from "#lib/switch/thumb/SwitchThumb.svelte";
 import { describeConformance } from "../../conformance/describeConformance.js";
 import { ssrHydration } from "../../conformance/ssrHydration.js";
 import SeveralSwitches from "../fixtures/SeveralSwitches.svelte";
+import SwitchThumbInRender from "../fixtures/SwitchThumbInRender.svelte";
 import SwitchWithThumb from "../fixtures/SwitchWithThumb.svelte";
 import { switchThumbConformance } from "../fixtures/switchThumbConformance.js";
 
@@ -23,6 +24,20 @@ describe("Switch.Thumb", () => {
     await expect(render(SwitchThumb)).rejects.toThrow(
       "SwitchRootContext is missing. Switch parts must be placed within <Switch.Root>.",
     );
+  });
+
+  it("reads the root's state when rendered inside the root's render snippet", async () => {
+    await render(SwitchThumbInRender);
+    const root = page.getByRole("switch");
+    const thumb = page.getByTestId("thumb");
+    await expect.element(root).toHaveAttribute("data-snippet-checked", "false");
+    await expect.element(thumb).toHaveAttribute("data-unchecked");
+
+    await userEvent.click(root);
+    await expect.element(root).toHaveAttribute("aria-checked", "true");
+    await expect.element(root).toHaveAttribute("data-snippet-checked", "true");
+    await expect.element(thumb).toHaveAttribute("data-checked");
+    await expect.element(thumb).not.toHaveAttribute("data-unchecked");
   });
 
   it("mirrors the root's data attributes", async () => {
