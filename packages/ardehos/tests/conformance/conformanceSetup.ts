@@ -12,6 +12,11 @@ export type ConformanceSetup<State> = {
   wrapper?: Component<{ children: Snippet }>;
   /** Props passed to the part on every render. */
   props?: Record<string, unknown>;
+  /**
+   * Props passed to the part only while it renders through the `<button>` render snippet, e.g.
+   * `nativeButton: true` for a part that otherwise expects a non-button element.
+   */
+  renderProps?: Record<string, unknown>;
   /** The tag of the element the part renders without a render snippet. */
   defaultTag: string;
   /** A state the part shows as a data attribute, with props that turn it on and off. */
@@ -50,6 +55,7 @@ export function harnessProps<State>(setup: ConformanceSetup<State>, options: Har
     // The harness only passes the part's own state back to it.
     isOn: setup.state.isOn as (state: unknown) => boolean,
     render: options.render,
+    renderProps: setup.renderProps,
     withChildren: options.withChildren,
     attach: options.attach,
     partProps: { "data-testid": "part", ...setup.props, ...options.partProps },

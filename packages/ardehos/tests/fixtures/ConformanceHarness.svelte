@@ -7,6 +7,8 @@
     part: Component<Record<string, unknown>>;
     wrapper?: Component<{ children: Snippet }>;
     partProps?: Record<string, unknown>;
+    /** Props added while `render` is `"button"`. */
+    renderProps?: Record<string, unknown>;
     render?: "button" | "ignore-props";
     withChildren?: boolean;
     /** Reads the state the part passes to its children snippet. */
@@ -18,6 +20,7 @@
     part: Part,
     wrapper: Wrapper,
     partProps = {},
+    renderProps,
     render,
     withChildren = false,
     isOn,
@@ -53,7 +56,9 @@
 {/snippet}
 
 {#snippet partElement()}
+  <!-- renderProps come first, so reading another prop never depends on the render mode. -->
   <Part
+    {...renderMode === "button" ? renderProps : undefined}
     {...partProps}
     bind:ref
     {@attach attach}

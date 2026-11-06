@@ -48,11 +48,12 @@ export function describeConformance<State>(name: string, setup: () => Conformanc
 
     it("forwards extra props", async () => {
       const { getByTestId } = await renderPart({
-        partProps: { "data-testid": "forwarded", "aria-label": "Label", id: "custom-id" },
+        // Not `id`: some parts put it elsewhere (Switch.Root puts it on its hidden input).
+        partProps: { "data-testid": "forwarded", "aria-label": "Label", lang: "fr" },
       });
       const part = getByTestId("forwarded");
       await expect.element(part).toHaveAttribute("aria-label", "Label");
-      await expect.element(part).toHaveAttribute("id", "custom-id");
+      await expect.element(part).toHaveAttribute("lang", "fr");
     });
 
     it("merges user handlers before its own and honours preventComponentHandler", async () => {
