@@ -1,0 +1,33 @@
+{
+  "name": "@sohedra/ardehos-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -F @sohedra/ardehos build",
+    "check": "pnpm -r check",
+    "test": "pnpm -F @sohedra/ardehos test",
+    "test:firefox": "pnpm -F @sohedra/ardehos test:firefox",
+    "test:webkit": "pnpm -F @sohedra/ardehos test:webkit",
+    "test:browsers": "pnpm -F @sohedra/ardehos test:browsers",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.91.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12.18.0",
+      "onFail": "warn"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^26.13.0",
+      "onFail": "error"
+    }
+  }
+}

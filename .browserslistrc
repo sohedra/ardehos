@@ -1,0 +1,10 @@
+# The browsers SvelteKit's client runtime supports (Vite 8's "baseline-widely-available"
+# build target), which is also Base UI's target: https://svelte.dev/docs/kit/faq
+# Svelte 5 itself supports older browsers, so this is the stricter limit.
+chrome >= 111
+edge >= 111
+firefox >= 114
+safari >= 16.4
+ios_saf >= 16.4
+and_chr >= 111
+and_ff >= 114

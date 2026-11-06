@@ -1,0 +1,5 @@
+{
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "files.trimTrailingWhitespace": true,
+  "scm.defaultViewMode": "tree"
+}
