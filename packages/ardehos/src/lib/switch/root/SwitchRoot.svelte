@@ -1,6 +1,5 @@
 <!-- Adapted from Base UI v1.9.0 (packages/react/src/switch/root/SwitchRoot.tsx). See NOTICE.txt. -->
 <script lang="ts">
-  import { on } from "svelte/events";
   import RenderElement from "#lib/internals/RenderElement.svelte";
   import { attachRef } from "#lib/internals/attachRef.svelte.js";
   import { createChangeEventDetails } from "#lib/internals/createEventDetails.js";
@@ -151,6 +150,8 @@
   function handleInputClick(event: MouseEvent) {
     // The click dispatched from the root's `onclick` is an implementation detail
     // and must not reach ancestors, which already receive the original click.
+    // This stops Svelte's delegated handlers only: a plain `addEventListener` click listener on an
+    // ancestor below the delegation root still sees both clicks, as with Base UI under React.
     event.stopPropagation();
 
     if (event.defaultPrevented) {
@@ -205,7 +206,7 @@
         localChecked = resetChecked;
       }
 
-      // The browser reset the input to its `checked` attribute: put it back on the shown value.
+      // The browser reset the input to `defaultChecked`: put it back on the shown value.
       inputElement.checked = isChecked;
     });
   }
@@ -215,7 +216,10 @@
     void form;
     const formElement = inputElement?.form;
     if (formElement) {
-      return on(formElement, "reset", handleFormReset);
+      // Not Svelte's `on`: it skips handlers once a listener registered earlier (such as the
+      // form's own `onreset`) has stopped propagation, and the switch must still reset.
+      formElement.addEventListener("reset", handleFormReset);
+      return () => formElement.removeEventListener("reset", handleFormReset);
     }
   });
 </script>
@@ -236,6 +240,7 @@
   />{/if}<input
   type="checkbox"
   checked={isChecked}
+  defaultChecked={defaultChecked ?? false}
   {disabled}
   {form}
   id={hiddenInputId}

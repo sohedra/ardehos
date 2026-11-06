@@ -567,6 +567,17 @@ describe("Switch.Root", () => {
   });
 
   describe("with native <label>", () => {
+    it("should toggle exactly once when the switch itself is clicked inside a wrapping <label>", async () => {
+      const onCheckedChange = vi.fn();
+      await render(SwitchRootInLabel, { onCheckedChange, style: SIZED });
+
+      await userEvent.click(getSwitch());
+
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "true");
+      expect(hiddenInput().checked).toBe(true);
+      expect(onCheckedChange).toHaveBeenCalledTimes(1);
+    });
+
     it("should toggle the switch when a wrapping <label> is clicked", async () => {
       const { getByTestId } = await render(SwitchRootInLabel);
       await expect.element(getSwitch()).toHaveAttribute("aria-checked", "false");

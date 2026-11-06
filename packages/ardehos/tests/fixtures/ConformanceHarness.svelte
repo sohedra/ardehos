@@ -44,8 +44,8 @@
 
 <!-- Annotated because a top-level snippet has no contextual type; the unannotated user pattern is
   in TestPartRenderButton.svelte. -->
-{#snippet button({ props }: { props: RenderProps })}
-  <button {...props}></button>
+{#snippet button({ props, state }: { props: RenderProps; state: unknown })}
+  <button {...props} data-on={String(isOn(state))}></button>
 {/snippet}
 
 {#snippet ignoringProps()}

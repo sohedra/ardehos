@@ -4,6 +4,7 @@
   - `form`: the switch is rendered outside the form, which gets this id.
   - `binding`: `"state"` binds `checked` to a `$state` starting at `initial`, shown in
     `data-testid="bound"`; `"function"` binds it to `get` / `set`.
+  - `onFormReset`: the form's own `onreset` handler.
   - `nativeCheckbox`: also renders a native checkbox with this name in the form.
 -->
 <script lang="ts">
@@ -18,6 +19,7 @@
     set = () => {},
     nativeCheckbox,
     onFormSubmit,
+    onFormReset,
     ...rest
   }: {
     binding?: "state" | "function";
@@ -26,6 +28,7 @@
     set?: (value: boolean) => void;
     nativeCheckbox?: string;
     onFormSubmit?: (event: SubmitEvent) => void;
+    onFormReset?: (event: Event) => void;
   } & SwitchRootProps = $props();
 
   // svelte-ignore state_referenced_locally
@@ -47,7 +50,7 @@
   {/if}
 {/snippet}
 
-<form id={form} onsubmit={handleSubmit}>
+<form id={form} onsubmit={handleSubmit} onreset={onFormReset}>
   {#if !form}
     {@render control()}
   {/if}

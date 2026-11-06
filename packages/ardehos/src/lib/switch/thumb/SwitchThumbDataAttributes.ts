@@ -33,7 +33,7 @@ export const invalid = "data-invalid";
  */
 export const touched = "data-touched";
 /**
- * Present when the switch"s value has changed (when wrapped in Field.Root).
+ * Present when the switch's value has changed (when wrapped in Field.Root).
  */
 export const dirty = "data-dirty";
 /**

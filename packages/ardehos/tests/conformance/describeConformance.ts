@@ -139,6 +139,15 @@ export function describeConformance<State>(name: string, setup: () => Conformanc
       expect(attach).toHaveBeenCalledWith(part.element());
     });
 
+    it("passes state to the render snippet", async () => {
+      const { state } = setup();
+      const { part, update } = await renderPart({ render: "button", partProps: state.on });
+      await expect.element(part).toHaveAttribute("data-on", "true");
+
+      await update({ render: "button", partProps: state.off });
+      await expect.element(part).toHaveAttribute("data-on", "false");
+    });
+
     it("replaces the element with the render snippet", async () => {
       const { state } = setup();
       const { part, getRef } = await renderPart({ render: "button", partProps: state.on });

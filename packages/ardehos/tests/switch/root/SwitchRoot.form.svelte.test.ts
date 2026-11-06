@@ -269,6 +269,54 @@ describe("Switch.Root in a form", () => {
       await expect.poll(() => hiddenInput().checked).toBe(true);
     });
 
+    it("puts the form data back on defaultChecked as soon as the form is reset", async () => {
+      await render(FormFixture, { defaultChecked: true, name: "test-switch", style: SIZED });
+      await userEvent.click(getSwitch());
+      expect(new FormData(getForm()).get("test-switch")).toBe(null);
+
+      getForm().reset();
+
+      expect(new FormData(getForm()).get("test-switch")).toBe("on");
+    });
+
+    it("resets when the form's own onreset stops propagation", async () => {
+      await render(FormFixture, {
+        checked: true,
+        defaultChecked: false,
+        name: "test-switch",
+        onFormReset: (event: Event) => event.stopPropagation(),
+      });
+
+      getForm().reset();
+
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "false");
+      await expect.poll(() => hiddenInput().checked).toBe(false);
+      expect(new FormData(getForm()).get("test-switch")).toBe(null);
+    });
+
+    it("submits the uncheckedValue after a reset from on to off", async () => {
+      const submitSpy = vi.fn((event: SubmitEvent) =>
+        new FormData(event.currentTarget as HTMLFormElement).getAll("test-switch"),
+      );
+      await render(FormFixture, {
+        defaultChecked: false,
+        name: "test-switch",
+        value: "yes",
+        uncheckedValue: "no",
+        onFormSubmit: submitSpy,
+        style: SIZED,
+      });
+      await userEvent.click(getSwitch());
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "true");
+
+      getForm().reset();
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "false");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await userEvent.click(submitButton());
+      expect(submitSpy.mock.results.at(-1)?.value).toEqual(["no"]);
+    });
+
     it("writes the reset value through bind:checked", async () => {
       const { getByTestId } = await render(FormFixture, {
         binding: "state",
