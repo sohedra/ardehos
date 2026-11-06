@@ -12,12 +12,14 @@ export type ElementSnapshot = { tag: string; id: string; data: Record<string, st
 /**
  * Puts server-rendered `html` into a container and hydrates `Component` with `props` over it.
  * Throws if hydration logs a `console.warn` or `console.error` mentioning "hydration".
- * Returns every element's tag, id and data attributes before and after hydration.
+ * Returns every element's tag, id and data attributes before and after hydration. `inspect` runs
+ * with the hydrated container, before it is unmounted, for checks that need the live DOM.
  */
 export function ssrHydration<Props extends Record<string, unknown>>(
   Component: Component<Props>,
   props: Props,
   html: string,
+  inspect?: (container: HTMLElement) => void,
 ): { before: ElementSnapshot[]; after: ElementSnapshot[] } {
   const container = document.createElement("div");
   container.innerHTML = html;
@@ -30,6 +32,7 @@ export function ssrHydration<Props extends Record<string, unknown>>(
     app = hydrate(Component, { target: container, props });
     flushSync();
     const after = snapshotElements(container);
+    inspect?.(container);
     const messages = [...warn.mock.calls, ...error.mock.calls]
       .map((args) => args.map(String).join(" "))
       .filter((message) => message.includes("hydration"));

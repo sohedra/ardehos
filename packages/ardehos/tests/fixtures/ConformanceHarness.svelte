@@ -2,10 +2,11 @@
   import type { Component, Snippet } from "svelte";
   import type { Attachment } from "svelte/attachments";
   import type { RenderProps } from "#lib/internals/types.js";
+  import type { ConformanceWrapperProps } from "../conformance/conformanceSetup.js";
 
   type HarnessProps = {
     part: Component<Record<string, unknown>>;
-    wrapper?: Component<{ children: Snippet }>;
+    wrapper?: Component<ConformanceWrapperProps>;
     partProps?: Record<string, unknown>;
     /** Props added while `render` is `"button"`. */
     renderProps?: Record<string, unknown>;
@@ -72,7 +73,7 @@
 {/snippet}
 
 {#if Wrapper}
-  <Wrapper>{@render partElement()}</Wrapper>
+  <Wrapper {partProps}>{@render partElement()}</Wrapper>
 {:else}
   {@render partElement()}
 {/if}

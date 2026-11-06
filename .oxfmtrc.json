@@ -1,5 +1,8 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "svelte": true,
-  "ignorePatterns": ["packages/ardehos/tests/conformance/__ssr__/"]
+  "ignorePatterns": [
+    "packages/ardehos/tests/conformance/__ssr__/",
+    "packages/ardehos/tests/switch/__ssr__/"
+  ]
 }

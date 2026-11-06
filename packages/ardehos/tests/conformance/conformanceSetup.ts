@@ -1,6 +1,13 @@
 import type { Component, Snippet } from "svelte";
 import type { Attachment } from "svelte/attachments";
 
+/** The props the harness gives a `wrapper`: the content, and the props the part is rendered with. */
+export type ConformanceWrapperProps = {
+  children: Snippet;
+  /** For a wrapper that provides the state the part shows, such as `checked` for a Switch.Thumb. */
+  partProps: Record<string, unknown>;
+};
+
 /**
  * Describes a part to the conformance suite. Shared by the browser suite (`describeConformance`)
  * and its server-render half (`describeServerRender`), so keep it in a module both can import.
@@ -8,8 +15,11 @@ import type { Attachment } from "svelte/attachments";
 export type ConformanceSetup<State> = {
   /** The part under test. */
   part: Component<Record<string, unknown>>;
-  /** Providers the part must be placed within, rendered around it. */
-  wrapper?: Component<{ children: Snippet }>;
+  /**
+   * Providers the part must be placed within, rendered around it. It receives the part's props,
+   * so it can give the part the state the setup's `on` and `off` stand for.
+   */
+  wrapper?: Component<ConformanceWrapperProps>;
   /** Props passed to the part on every render. */
   props?: Record<string, unknown>;
   /**
