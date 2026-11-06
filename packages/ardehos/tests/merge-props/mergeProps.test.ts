@@ -99,6 +99,22 @@ describe("mergeProps", () => {
     expect(merged.ontest).toBe(2);
   });
 
+  it("keeps the defined side when a handler slot is undefined", () => {
+    const fn = vi.fn();
+    const event = new Event("click");
+    const rightFn = mergeProps({ onclick: undefined }, { onclick: fn });
+    (rightFn.onclick as (e: Event) => void)(event);
+    expect(fn).toHaveBeenCalledOnce();
+
+    const leftFn = mergeProps({ onclick: fn }, { onclick: undefined });
+    (leftFn.onclick as (e: Event) => void)(event);
+    expect(fn).toHaveBeenCalledTimes(2);
+
+    const both = mergeProps({ onclick: undefined }, { onclick: undefined });
+    expect("onclick" in both).toBe(true);
+    expect(both.onclick).toBeUndefined();
+  });
+
   it("keeps attachments from every source", () => {
     const k1 = createAttachmentKey();
     const k2 = createAttachmentKey();

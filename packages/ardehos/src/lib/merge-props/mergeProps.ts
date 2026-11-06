@@ -67,11 +67,21 @@ function mergeInto(merged: Props, source: PropsSource): Props {
   return merged;
 }
 
-function isEventHandler(key: PropertyKey, value: unknown): value is AnyFunction {
-  return typeof key === "string" && /^on[a-z]+$/.test(key) && typeof value === "function";
+function isEventHandler(key: PropertyKey, value: unknown): value is AnyFunction | undefined {
+  return (
+    typeof key === "string" &&
+    /^on[a-z]+$/.test(key) &&
+    (typeof value === "function" || value === undefined)
+  );
 }
 
-function mergeEventHandlers(ours: AnyFunction | undefined, theirs: AnyFunction): AnyFunction {
+function mergeEventHandlers(
+  ours: AnyFunction | undefined,
+  theirs: AnyFunction | undefined,
+): AnyFunction | undefined {
+  if (!theirs) {
+    return ours;
+  }
   if (!ours) {
     return wrapEventHandler(theirs);
   }
@@ -91,7 +101,10 @@ function mergeEventHandlers(ours: AnyFunction | undefined, theirs: AnyFunction):
   };
 }
 
-function wrapEventHandler(handler: AnyFunction): AnyFunction {
+function wrapEventHandler(handler: AnyFunction | undefined): AnyFunction | undefined {
+  if (!handler) {
+    return handler;
+  }
   return (...args: unknown[]) => {
     const event = args[0];
     if (event instanceof Event) {
