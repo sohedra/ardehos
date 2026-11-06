@@ -1,5 +1,6 @@
 <!-- Adapted from Base UI v1.9.0 (packages/react/src/switch/root/SwitchRoot.tsx). See NOTICE.txt. -->
 <script lang="ts">
+  import { on } from "svelte/events";
   import RenderElement from "#lib/internals/RenderElement.svelte";
   import { attachRef } from "#lib/internals/attachRef.svelte.js";
   import { createChangeEventDetails } from "#lib/internals/createEventDetails.js";
@@ -181,6 +182,42 @@
 
     localChecked = nextChecked;
   }
+
+  // A form reset restores `defaultChecked`, as for a native checkbox: the bound value is written,
+  // and `onCheckedChange` isn't called (a native reset fires no `input` or `change` event), even
+  // when the switch is disabled or read-only.
+  function handleFormReset(event: Event) {
+    const formElement = event.currentTarget;
+
+    // `reset` fires before the browser resets the controls, and after a reset button's click even
+    // a microtask runs before that, so the switch is reset a task later.
+    setTimeout(() => {
+      // Skip a canceled reset, and a switch that has since unmounted or left the form.
+      if (event.defaultPrevented || !inputElement || inputElement.form !== formElement) {
+        return;
+      }
+
+      const resetChecked = defaultChecked ?? false;
+      checked = resetChecked;
+
+      // A function binding's setter can decline the value.
+      if (isChecked === resetChecked) {
+        localChecked = resetChecked;
+      }
+
+      // The browser reset the input to its `checked` attribute: put it back on the shown value.
+      inputElement.checked = isChecked;
+    });
+  }
+
+  $effect(() => {
+    // Read so the listener moves when the input's `form` attribute points to another form.
+    void form;
+    const formElement = inputElement?.form;
+    if (formElement) {
+      return on(formElement, "reset", handleFormReset);
+    }
+  });
 </script>
 
 <!-- No whitespace between the elements: it would render a text node beside the switch. -->
