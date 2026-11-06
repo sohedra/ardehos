@@ -29,10 +29,10 @@
     "prepack": "svelte-kit sync && svelte-package && publint",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test": "vitest run --project node --project \"browser (chromium)\" --passWithNoTests",
-    "test:firefox": "vitest run --project node --project \"browser (firefox)\" --passWithNoTests",
-    "test:webkit": "vitest run --project node --project \"browser (webkit)\" --passWithNoTests",
-    "test:browsers": "vitest run --passWithNoTests"
+    "test": "vitest run --project node --project \"browser (chromium)\"",
+    "test:firefox": "vitest run --project node --project \"browser (firefox)\"",
+    "test:webkit": "vitest run --project node --project \"browser (webkit)\"",
+    "test:browsers": "vitest run"
   },
   "dependencies": {
     "esm-env": "^1.2.2"
