@@ -5,7 +5,8 @@
     "svelte"
   ],
   "files": [
-    "dist"
+    "dist",
+    "NOTICE.txt"
   ],
   "type": "module",
   "sideEffects": false,
@@ -28,10 +29,13 @@
     "prepack": "svelte-kit sync && svelte-package && publint",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test": "vitest run --project chromium",
-    "test:firefox": "vitest run --project firefox",
-    "test:webkit": "vitest run --project webkit",
-    "test:browsers": "vitest run"
+    "test": "vitest run --project node --project \"browser (chromium)\" --passWithNoTests",
+    "test:firefox": "vitest run --project node --project \"browser (firefox)\" --passWithNoTests",
+    "test:webkit": "vitest run --project node --project \"browser (webkit)\" --passWithNoTests",
+    "test:browsers": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "esm-env": "^1.2.2"
   },
   "devDependencies": {
     "@sveltejs/kit": "^3.1.1",
@@ -44,7 +48,8 @@
     "svelte-check": "^4.7.8",
     "typescript": "^6.0.3",
     "vite": "^8.3.6",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "vitest-browser-svelte": "^3.1.0"
   },
   "peerDependencies": {
     "svelte": "^5.57.0"
