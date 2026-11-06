@@ -11,6 +11,7 @@ import SwitchRootFunctionBound from "../fixtures/SwitchRootFunctionBound.svelte"
 import SwitchRootInLabel from "../fixtures/SwitchRootInLabel.svelte";
 import SwitchRootInputRef from "../fixtures/SwitchRootInputRef.svelte";
 import SwitchRootInParent from "../fixtures/SwitchRootInParent.svelte";
+import SwitchRootPreventHandler from "../fixtures/SwitchRootPreventHandler.svelte";
 import SwitchRootParentValue from "../fixtures/SwitchRootParentValue.svelte";
 import SwitchRootToggleFromOutside from "../fixtures/SwitchRootToggleFromOutside.svelte";
 import SwitchRootWithContextValue from "../fixtures/SwitchRootWithContextValue.svelte";
@@ -311,6 +312,15 @@ describe("Switch.Root", () => {
       expect(onclick).toHaveBeenCalledTimes(1);
     });
 
+    it("lets onclick skip the switch's handler with preventComponentHandler()", async () => {
+      await render(SwitchRootPreventHandler);
+
+      await userEvent.click(getSwitch());
+
+      await expect.element(getSwitch()).toHaveAttribute("data-prevented", "true");
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "false");
+    });
+
     it.each([false, true])(
       "propagates a single click event to ancestors per user click (nativeButton=%s)",
       async (nativeButton) => {
@@ -345,6 +355,62 @@ describe("Switch.Root", () => {
         await expect.element(getSwitch()).toHaveAttribute("aria-checked", "true");
       },
     );
+  });
+
+  describe("native input and change events", () => {
+    function listen(container: HTMLElement) {
+      const events: { type: string; target: EventTarget | null; bubbles: boolean }[] = [];
+      const record = (event: Event) =>
+        events.push({ type: event.type, target: event.target, bubbles: event.bubbles });
+      container.addEventListener("input", record);
+      container.addEventListener("change", record);
+      return events;
+    }
+
+    it("fires bubbling input and change from the hidden input on an accepted change", async () => {
+      const { container } = await render(SwitchRoot, { style: SIZED });
+      const events = listen(container);
+
+      await userEvent.click(getSwitch());
+
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "true");
+      expect(events).toEqual([
+        { type: "input", target: hiddenInput(), bubbles: true },
+        { type: "change", target: hiddenInput(), bubbles: true },
+      ]);
+    });
+
+    it("fires neither when onCheckedChange cancels", async () => {
+      const { container } = await render(SwitchRoot, {
+        style: SIZED,
+        onCheckedChange: (_checked: boolean, details: SwitchRootChangeEventDetails) =>
+          details.cancel(),
+      });
+      const events = listen(container);
+
+      await userEvent.click(getSwitch());
+      flushSync();
+
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "false");
+      expect(events).toEqual([]);
+    });
+
+    it("fires neither when a function-binding setter declines", async () => {
+      const set = vi.fn();
+      const { container } = await render(SwitchRootFunctionBound, {
+        get: () => false,
+        set,
+        style: SIZED,
+      });
+      const events = listen(container);
+
+      await userEvent.click(getSwitch());
+      flushSync();
+
+      expect(set).toHaveBeenCalledWith(true);
+      await expect.element(getSwitch()).toHaveAttribute("aria-checked", "false");
+      expect(events).toEqual([]);
+    });
   });
 
   describe("prop: disabled", () => {

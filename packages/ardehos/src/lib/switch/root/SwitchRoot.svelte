@@ -41,9 +41,10 @@
     ...elementProps
   }: SwitchRootProps = $props();
 
-  // The switch keeps its own copy of the value: an unbound prop's local value is dropped whenever
-  // the parent re-provides its props (a spread does on any change), and `checked` then reads
-  // `undefined`.
+  // The switch keeps its own copy of the value. An unbound prop's local value is dropped whenever
+  // the parent re-provides its props (a spread does on any change): an undefined `checked` then
+  // falls back to this copy, so an uncontrolled switch keeps the user's toggle. A defined
+  // `checked` that is re-provided replaces the user's toggle, as with any overridden Svelte prop.
   // svelte-ignore state_referenced_locally
   let localChecked = $state(checked ?? defaultChecked ?? false);
 

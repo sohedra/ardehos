@@ -15,3 +15,18 @@ export type ComponentEvent<E extends Event> = E & {
 export type RenderProps = Record<string, unknown> & {
   [key: symbol]: Attachment | false | null | undefined;
 };
+
+type ComponentEventHandler<H> = H extends (event: infer E) => infer R
+  ? E extends Event
+    ? (event: ComponentEvent<E>) => R
+    : H
+  : H;
+
+/**
+ * Retypes the `on*` event handlers of element props (e.g. `HTMLAttributes<HTMLSpanElement>`) so
+ * they receive a `ComponentEvent`, exposing `preventComponentHandler()`. The rest of each handler's
+ * type, such as its `currentTarget`, is kept.
+ */
+export type WithComponentHandlers<Props> = {
+  [K in keyof Props]: K extends `on${string}` ? ComponentEventHandler<Props[K]> : Props[K];
+};

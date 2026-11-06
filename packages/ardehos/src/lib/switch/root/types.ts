@@ -3,7 +3,7 @@ import type { Snippet } from "svelte";
 import type { ClassValue, HTMLAttributes } from "svelte/elements";
 import type { ChangeEventDetails } from "#lib/internals/createEventDetails.js";
 import type { REASONS } from "#lib/internals/reasons.js";
-import type { RenderProps } from "#lib/internals/types.js";
+import type { RenderProps, WithComponentHandlers } from "#lib/internals/types.js";
 
 export type SwitchRootState = {
   /**
@@ -59,7 +59,11 @@ type OwnProps = {
   /**
    * Whether the switch is currently active. Bindable.
    *
-   * Without a binding it is the starting value, and follows later changes from the parent.
+   * Without a binding it is the starting value; the user's toggles then change it locally. When
+   * the parent provides a new value, the switch shows it. When the parent re-provides its props
+   * (for example through a spread, when another prop changes), a defined `checked` is read again
+   * and replaces the user's toggle, as with any locally changed Svelte prop. Use `bind:checked` to
+   * keep the parent's value and the switch in step.
    */
   checked?: boolean | undefined;
   /**
@@ -141,4 +145,13 @@ type OwnProps = {
   children?: Snippet<[{ state: SwitchRootState }]> | undefined;
 };
 
-export type SwitchRootProps = Omit<HTMLAttributes<HTMLSpanElement>, keyof OwnProps> & OwnProps;
+/**
+ * Handlers the root never calls: `input` and `change` fire on the hidden input, a sibling of the
+ * root, so they never reach it. Base UI omits `onChange` too.
+ */
+type HiddenInputHandlers = "onchange" | "onchangecapture" | "oninput" | "oninputcapture";
+
+export type SwitchRootProps = WithComponentHandlers<
+  Omit<HTMLAttributes<HTMLSpanElement>, keyof OwnProps | HiddenInputHandlers>
+> &
+  OwnProps;
