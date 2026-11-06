@@ -46,6 +46,21 @@ describe("useButton", () => {
       expect(onclick).toHaveBeenCalledTimes(2);
     });
 
+    it("can be activated with Enter when the keyboard event originates inside a shadow root", async () => {
+      const onclick = vi.fn();
+      await render(ButtonFixture, { onclick });
+      const host = page.getByTestId("button").element() as HTMLElement;
+      const inner = document.createElement("span");
+      inner.tabIndex = 0;
+      host.attachShadow({ mode: "open" }).appendChild(inner);
+
+      inner.focus();
+      inner.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true, composed: true }),
+      );
+      expect(onclick).toHaveBeenCalledTimes(1);
+    });
+
     it("does not click when the consumer calls preventComponentHandler", async () => {
       const onclick = vi.fn();
       const prevent = (event: Event) =>
