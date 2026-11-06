@@ -163,7 +163,8 @@ export function describeConformance<State>(name: string, setup: () => Conformanc
 
     it("ignores children and warns in development when render is also given", async () => {
       const { state } = setup();
-      const warn = vi.spyOn(console, "warn");
+      // Silenced: the warning is expected, and test output stays clean.
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
       try {
         const { part, getByTestId, update } = await renderPart({
           render: "button",
@@ -209,19 +210,30 @@ export function describeConformance<State>(name: string, setup: () => Conformanc
     });
 
     it("keeps state and moves the ref when render is toggled", async () => {
-      const { state } = setup();
-      const { part, getRef, update } = await renderPart({ partProps: state.on });
+      const { state, readOwnClick, defaultTag } = setup();
+      // A size, so the element can be clicked without children (which the render snippet ignores).
+      const style = "display: inline-block; width: 16px; height: 16px";
+      const { part, getRef, component } = await renderPart({
+        partProps: { ...(readOwnClick ? state.off : state.on), style },
+      });
+      if (readOwnClick) {
+        // Turn the state on through the part itself, so only the part holds it.
+        await expect.element(part).not.toHaveAttribute(state.attribute);
+        await userEvent.click(part);
+      }
       await expect.element(part).toHaveAttribute(state.attribute);
       expect(getRef()).toBe(part.element());
 
-      await update({ render: "button", partProps: state.on });
+      component.setRender("button");
+      flushSync();
       await expect.element(part).toHaveAttribute(state.attribute);
       expect(part.element().tagName).toBe("BUTTON");
       expect(getRef()).toBe(part.element());
 
-      await update({ partProps: state.on });
+      component.setRender(undefined);
+      flushSync();
       await expect.element(part).toHaveAttribute(state.attribute);
-      expect(part.element().tagName.toLowerCase()).toBe(setup().defaultTag);
+      expect(part.element().tagName.toLowerCase()).toBe(defaultTag);
       expect(getRef()).toBe(part.element());
     });
   });

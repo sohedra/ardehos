@@ -2,16 +2,16 @@
 <script lang="ts" generics="State">
   import type { Snippet } from "svelte";
   import { DEV } from "esm-env";
-  import type { Props } from "#lib/merge-props/mergeProps.js";
+  import type { RenderProps } from "#lib/internals/types.js";
 
   type RenderElementProps = {
     /** The element rendered when there is no `render` snippet. */
     tag: string;
     /** The merged props for the element, from `useRenderElement`. */
-    props: Props;
+    props: RenderProps;
     state: State;
     /** Replaces the element; receives the props to spread and the state. */
-    render?: Snippet<[{ props: Props; state: State }]>;
+    render?: Snippet<[{ props: RenderProps; state: State }]>;
     /** The element's content. Ignored when `render` is given. */
     children?: Snippet<[{ state: State }]>;
   };

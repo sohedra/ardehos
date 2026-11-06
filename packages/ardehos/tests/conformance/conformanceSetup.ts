@@ -24,7 +24,8 @@ export type ConformanceSetup<State> = {
   };
   /**
    * For a part with its own click handler: reads something from the element that the handler
-   * changes, so the suite can tell whether it ran.
+   * changes, so the suite can tell whether it ran. Clicking the part in its `off` state must turn
+   * the state on (the suite uses this to give the part state that only the part holds).
    */
   readOwnClick?: (element: Element) => unknown;
 };

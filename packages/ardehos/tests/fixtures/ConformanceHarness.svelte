@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Component, Snippet } from "svelte";
   import type { Attachment } from "svelte/attachments";
+  import type { RenderProps } from "#lib/internals/types.js";
 
   type HarnessProps = {
     part: Component<Record<string, unknown>>;
@@ -24,15 +25,22 @@
   }: HarnessProps = $props();
 
   let ref: Element | null = $state(null);
+  // Toggled through `setRender`, so changing it doesn't touch the part's props (a rerender would
+  // re-derive prop-backed state and hide whether the toggle itself kept it).
+  let renderMode = $derived(render);
 
   export function getRef() {
     return ref;
   }
+
+  export function setRender(mode: HarnessProps["render"]) {
+    renderMode = mode;
+  }
 </script>
 
-<!-- Typed without symbol keys: `Props` (`Record<PropertyKey, unknown>`) doesn't type-check when
-  spread on an element, since its symbol index signature isn't `Attachment`. -->
-{#snippet button({ props }: { props: Record<string, unknown> })}
+<!-- Annotated because a top-level snippet has no contextual type; the unannotated user pattern is
+  in TestPartRenderButton.svelte. -->
+{#snippet button({ props }: { props: RenderProps })}
   <button {...props}></button>
 {/snippet}
 
@@ -49,7 +57,11 @@
     {...partProps}
     bind:ref
     {@attach attach}
-    render={render === "button" ? button : render === "ignore-props" ? ignoringProps : undefined}
+    render={renderMode === "button"
+      ? button
+      : renderMode === "ignore-props"
+        ? ignoringProps
+        : undefined}
     children={withChildren ? stateChildren : undefined}
   />
 {/snippet}

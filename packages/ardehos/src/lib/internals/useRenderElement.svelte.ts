@@ -7,6 +7,7 @@ import {
 } from "#lib/internals/getStateAttributesProps.js";
 import { resolveClassName } from "#lib/utils/resolveClassName.js";
 import { resolveStyle } from "#lib/utils/resolveStyle.js";
+import type { RenderProps } from "#lib/internals/types.js";
 
 export type UseRenderElementOptions<State> = {
   /** The part's state, shown as `data-*` attributes and passed to `class` / `style` functions. */
@@ -28,7 +29,7 @@ export type UseRenderElementOptions<State> = {
  */
 export function useRenderElement<State extends Record<string, unknown>>(
   options: () => UseRenderElementOptions<State>,
-): { readonly props: Props } {
+): { readonly props: RenderProps } {
   const props = $derived.by(() => {
     const { state, class: classValue, style: styleValue, mapping, props: sources } = options();
     const resolved: Props = {};
@@ -40,7 +41,8 @@ export function useRenderElement<State extends Record<string, unknown>>(
     if (style !== undefined) {
       resolved.style = style;
     }
-    return mergeProps(getStateAttributesProps(state, mapping), ...sources, resolved);
+    // Symbol keys only ever hold attachments: the sources' and the user's `{@attach}` props.
+    return mergeProps(getStateAttributesProps(state, mapping), ...sources, resolved) as RenderProps;
   });
 
   return {

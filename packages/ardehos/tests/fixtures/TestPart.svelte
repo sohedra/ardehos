@@ -9,13 +9,13 @@
   import RenderElement from "#lib/internals/RenderElement.svelte";
   import { attachRef } from "#lib/internals/attachRef.svelte.js";
   import { useRenderElement } from "#lib/internals/useRenderElement.svelte.js";
-  import type { Props } from "#lib/merge-props/mergeProps.js";
+  import type { RenderProps } from "#lib/internals/types.js";
 
   type TestPartProps = {
     active?: boolean;
     class?: ClassValue | ((state: TestPartState) => ClassValue);
     style?: string | ((state: TestPartState) => string | undefined);
-    render?: Snippet<[{ props: Props; state: TestPartState }]>;
+    render?: Snippet<[{ props: RenderProps; state: TestPartState }]>;
     children?: Snippet<[{ state: TestPartState }]>;
     ref?: HTMLElement | null;
     [key: string]: unknown;
